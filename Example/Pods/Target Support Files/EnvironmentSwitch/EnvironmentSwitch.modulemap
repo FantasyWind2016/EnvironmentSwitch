@@ -1,0 +1,6 @@
+framework module EnvironmentSwitch {
+  umbrella header "EnvironmentSwitch-umbrella.h"
+
+  export *
+  module * { export * }
+}
