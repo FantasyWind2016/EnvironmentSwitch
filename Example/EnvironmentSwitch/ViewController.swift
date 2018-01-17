@@ -7,9 +7,15 @@
 //
 
 import UIKit
+import EnvironmentSwitch
 
 class ViewController: UIViewController {
-
+    @IBOutlet weak var environmentLabel: UILabel!
+    
+    @IBOutlet weak var baseURLLabel: UILabel!
+    
+    @IBOutlet weak var webURLLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -20,5 +26,19 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    @IBAction func switchEnvironment(_ sender: Any) {
+        if EnvironmentSwitch.business.currentEnvironment == .product {
+            EnvironmentSwitch.business.switchTo(.test)
+        } else {
+            EnvironmentSwitch.business.switchTo(.product)
+        }
+        
+    }
+    
+    @IBAction func refreshData(_ sender: Any) {
+        environmentLabel.text = EnvironmentSwitch.business.currentEnvironment == .product ? "生产" : "测试"
+        baseURLLabel.text = EnvironmentSwitch.business.stringForKey(.baseURL)
+        webURLLabel.text = EnvironmentSwitch.business.stringForKey(.webURL)
+    }
 }
 

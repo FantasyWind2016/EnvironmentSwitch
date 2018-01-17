@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import EnvironmentSwitch
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        EnvironmentSwitch.business.setString("https://api.baidu.com", forEnvironment: .product, key: .baseURL)
+        EnvironmentSwitch.business.setString("https://test.api.baidu.com", forEnvironment: .test, key: .baseURL)
+        EnvironmentSwitch.business.setString("https://www.baidu.com", forEnvironment: .product, key: .webURL)
+        EnvironmentSwitch.business.setString("https://test.baidu.com", forEnvironment: .test, key: .webURL)
         return true
     }
 
