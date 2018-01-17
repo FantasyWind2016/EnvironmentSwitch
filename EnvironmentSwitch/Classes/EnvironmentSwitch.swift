@@ -8,6 +8,8 @@
 import Foundation
 
 let kDefaultSwitchIdentifier = "share"
+let kKeyCurrentEnvironment = "currentEnvironment"
+
 
 public enum EnvironmentType: String {
     case develop = "develop"
@@ -46,13 +48,43 @@ public class EnvironmentSwitch: NSObject {
             return tmpSwitch
         }
         let newSwitch = EnvironmentSwitch()
+        newSwitch.identifier = identifier
+        newSwitch.loadData()
         switchPool[identifier] = newSwitch
         return newSwitch
     }
     
+    public var identifier = kDefaultSwitchIdentifier
     public var currentEnvironment = EnvironmentType.product
+    lazy var switchDefault = UserDefaults.init(suiteName: "EnvironmentSwitch")
     public func switchTo(_ environment: EnvironmentType) {
         currentEnvironment = environment
+        switchDefault?.set(currentEnvironment.rawValue, forKey: saveKey(forKey: kKeyCurrentEnvironment))
+        switchDefault?.synchronize()
+    }
+    
+    /// 是否手动切换过环境
+    ///
+    /// - Returns: 是否
+    public func hadSwitched() -> Bool {
+        if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
+            if let _ = EnvironmentType.init(rawValue: raw) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func loadData() {
+        if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
+            if let current = EnvironmentType.init(rawValue: raw) {
+                switchTo(current)
+            }
+        }
+    }
+    
+    func saveKey(forKey key: String) -> String {
+        return "kUserDefault_" + identifier + "_" + key
     }
     
     var dataList : Dictionary<String, String> = [:]
