@@ -74,7 +74,6 @@
 		6D257341770A5EF7A548ECDACAED6292 /* ExampleMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C71DF19B75D27352FBD0AE9FF127BEA /* ExampleMetadata.swift */; };
 		6D4FB6F59F0906408B82491FA1CE3D41 /* Behavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8958E6A104616DC4782A7B97FDA3B19B /* Behavior.swift */; };
 		73BC5AC2ECDB8722E085F14B53E0D24E /* AssertionRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2480CEE3C4AE53F3F54A69E133506393 /* AssertionRecorder.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
-		73C73FFDFF461E04D49E7E70BED7114D /* ReplaceMe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BC90549332A997A2F48319E405CC48 /* ReplaceMe.swift */; };
 		74A7C826ED390EF61C25C69BB5A9C5B6 /* PrettySyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CB8C91B44DFA94D543228EB3934E5B /* PrettySyntax.swift */; };
 		75538A8B20C7A20AF3D54BBF35D56FFE /* BeLessThanOrEqual.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F0D51611FC77F830A66707083F3D5C /* BeLessThanOrEqual.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		756564ABAF2892FE7140C92A1CDDCF65 /* UIImage+Snapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 022B021D1697A1B527875D5C550412C0 /* UIImage+Snapshot.m */; };
@@ -325,7 +324,6 @@
 		7D1E103702ABBD58F315C182A4866454 /* NBSMockedApplication.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = NBSMockedApplication.m; path = DynamicType/NBSMockedApplication.m; sourceTree = "<group>"; };
 		7D771B7102858BAB21B74EB6D6697B0D /* Nimble.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = Nimble.modulemap; sourceTree = "<group>"; };
 		8019BDFD627D709E74DAE9192ACD7FCA /* Pods-EnvironmentSwitch_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-EnvironmentSwitch_Example-resources.sh"; sourceTree = "<group>"; };
-		81BC90549332A997A2F48319E405CC48 /* ReplaceMe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReplaceMe.swift; path = EnvironmentSwitch/Classes/ReplaceMe.swift; sourceTree = "<group>"; };
 		840FD64E1CCF77D2557E76A7102D5CA2 /* HooksPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HooksPhase.swift; path = Sources/Quick/Hooks/HooksPhase.swift; sourceTree = "<group>"; };
 		867B7D0B6119996C55CB7BDEE06E97F4 /* Pods-EnvironmentSwitch_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-EnvironmentSwitch_Tests-frameworks.sh"; sourceTree = "<group>"; };
 		8958E6A104616DC4782A7B97FDA3B19B /* Behavior.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Behavior.swift; path = Sources/Quick/Behavior.swift; sourceTree = "<group>"; };
@@ -528,7 +526,6 @@
 			isa = PBXGroup;
 			children = (
 				C2A5B815200EF3E700D63092 /* EnvironmentSwitch.swift */,
-				81BC90549332A997A2F48319E405CC48 /* ReplaceMe.swift */,
 				24FBB30BA9554FA28538F6BB17CC338E /* Support Files */,
 			);
 			name = EnvironmentSwitch;
@@ -1207,7 +1204,6 @@
 			files = (
 				C2A5B816200EF3E700D63092 /* EnvironmentSwitch.swift in Sources */,
 				E7FC9BC8A32D80F8728F62CD213E5812 /* EnvironmentSwitch-dummy.m in Sources */,
-				73C73FFDFF461E04D49E7E70BED7114D /* ReplaceMe.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
