@@ -37,8 +37,8 @@ class ViewController: UIViewController {
     
     @IBAction func refreshData(_ sender: Any) {
         environmentLabel.text = EnvironmentSwitch.business.currentEnvironment == .product ? "生产" : "测试"
-        baseURLLabel.text = EnvironmentSwitch.business.stringForKey(.baseURL)
-        webURLLabel.text = EnvironmentSwitch.business.stringForKey(.webURL)
+        baseURLLabel.text = EnvironmentSwitch.business.boxedStringForKey(.baseURL).boxedStringForKey(.loginURL).rawValue
+        webURLLabel.text = EnvironmentSwitch.business.boxedStringForKey(.webURL).boxedStringForKey(.whatsNew).rawValue
     }
 }
 

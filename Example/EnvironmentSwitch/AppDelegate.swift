@@ -19,8 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         EnvironmentSwitch.business.setString("https://api.baidu.com", forEnvironment: .product, key: .baseURL)
         EnvironmentSwitch.business.setString("https://test.api.baidu.com", forEnvironment: .test, key: .baseURL)
+        EnvironmentSwitch.business.setString("/test/login", forEnvironment: .test, key: .loginURL)
+        EnvironmentSwitch.business.setString("/login", forEnvironment: .product, key: .loginURL)
         EnvironmentSwitch.business.setString("https://www.baidu.com", forEnvironment: .product, key: .webURL)
         EnvironmentSwitch.business.setString("https://test.baidu.com", forEnvironment: .test, key: .webURL)
+        EnvironmentSwitch.business.setString("/whatsNew.html", forEnvironment: .test, key: .whatsNew)
+        EnvironmentSwitch.business.setString("/whatsNew.html", forEnvironment: .product, key: .whatsNew)
         return true
     }
 
