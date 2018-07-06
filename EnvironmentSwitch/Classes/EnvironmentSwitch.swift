@@ -40,7 +40,24 @@ extension EnvironmentDataKey {
     public static let baseURL: EnvironmentDataKey = EnvironmentDataKey.init("baseURL")
 }
 
-public class EnvironmentSwitch: NSObject {
+public protocol EnvironmentSwitchChainable {
+    func boxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString
+}
+
+public class BoxedString: EnvironmentSwitchChainable {
+    public var rawValue = ""
+    var environmentSwitch: EnvironmentSwitch = EnvironmentSwitch()
+    init(_ value: String) {
+        rawValue = value
+    }
+    public func boxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString {
+        let string = BoxedString(self.rawValue + environmentSwitch.stringForKey(key))
+        string.environmentSwitch = self.environmentSwitch
+        return string
+    }
+}
+
+public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     static var switchPool : Dictionary<String, EnvironmentSwitch> = [:]
     public static let share = switchWithIdentifier(kDefaultSwitchIdentifier)
     public class func switchWithIdentifier(_ identifier: String) -> EnvironmentSwitch {
@@ -91,12 +108,24 @@ public class EnvironmentSwitch: NSObject {
     public func setString(_ string: String, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey) {
         dataList[keyStringForEnvironment(environment, key: key)] = string
     }
-    public func stringForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> String? {
-        return dataList[keyStringForEnvironment(environment, key: key)]
+    public func stringForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> String {
+        var result = dataList[keyStringForEnvironment(environment, key: key)]
+        if result == nil {
+            result = ""
+        }
+        return result!
     }
-    public func stringForKey(_ key: EnvironmentDataKey) -> String? {
+    
+    public func stringForKey(_ key: EnvironmentDataKey) -> String {
         return stringForEnvironment(currentEnvironment, key: key)
     }
+    
+    public func boxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString {
+        let resut = BoxedString(stringForKey(key))
+        resut.environmentSwitch = self
+        return resut
+    }
+    
     func keyStringForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> String {
         return environment.rawValue + key.rawValue
     }
