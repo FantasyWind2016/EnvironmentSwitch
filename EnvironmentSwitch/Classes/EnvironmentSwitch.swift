@@ -19,6 +19,11 @@ public enum EnvironmentType: String {
     case product = "product"
 }
 
+extension NSNotification {
+    /// 环境切换后触发，参数中包含preEnvironment和currentEnvironment
+    static let environmentSwitched = NSNotification.Name("EnvironmentSwitched")
+}
+
 public struct EnvironmentDataKey : RawRepresentable, Equatable, Hashable {
     public var rawValue: String
     
@@ -38,6 +43,16 @@ public struct EnvironmentDataKey : RawRepresentable, Equatable, Hashable {
 
 extension EnvironmentDataKey {
     public static let baseURL: EnvironmentDataKey = EnvironmentDataKey.init("baseURL")
+}
+
+public enum LoadDataResult {
+    case success
+    case fileNotExist
+    case fileReadError
+    case JSONParseError
+    case JSONNil
+    case saveMutableDataError
+    case saveImmutableDataError
 }
 
 public protocol EnvironmentSwitchChainable {
@@ -92,9 +107,11 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     ///
     /// - Parameter environment: 环境类型
     public func switchTo(_ environment: EnvironmentType) {
+        let oldValue = currentEnvironment
         currentEnvironment = environment
         switchDefault?.set(currentEnvironment.rawValue, forKey: saveKey(forKey: kKeyCurrentEnvironment))
         switchDefault?.synchronize()
+        NotificationCenter.default.post(name: NSNotification.environmentSwitched, object: self, userInfo: ["preEnvironment": oldValue.rawValue,"currentEnvironment": currentEnvironment.rawValue])
     }
     
     /// 是否手动切换过环境
@@ -130,45 +147,77 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         saveImmutableString(immutableString, for: keyStringForImmutableParam(key: key))
     }
     
-    /// 加载字典中的数据
+    /// 清除所有可变与不可变数据
+    public func clearAllData() {
+        clearMutableData()
+        clearImmutableData()
+    }
+    
+    /// 清除所有可变数据
+    public func clearMutableData() {
+        dataList.removeAll()
+    }
+    
+    /// 清除所有不可变数据
+    public func clearImmutableData() {
+        immutableDataList.removeAll()
+    }
+    
+    /// 添加JSON文件中的数据，不会清空原数据
     ///
-    /// - Parameter dict: 字典
+    /// - Parameter fn: 文件路径
     /// - Returns: 是否成功
-    public func loadDataWithJSONFile(_ fn: String) -> Bool {
+    public func appendDataWithJSONFile(_ fn: String) -> LoadDataResult {
         if !FileManager.default.fileExists(atPath: fn) {
-            return false
+            return .fileNotExist
         }
-        guard let url = URL.init(string: fn) else { return false }
+        guard let data = NSData.init(contentsOfFile: fn) as Data? else {
+            return .fileReadError
+        }
         do {
-            guard let data = NSData.init(contentsOfFile: fn) as Data? else {
-                return false
-            }
-            
             guard let dict = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? Dictionary<String, Any> else {
-                return false
+                return .JSONNil
             }
-            return self.loadDataWithDict(dict)
+            return self.appendDataWithDict(dict)
         } catch {
-            return false
+            return .JSONParseError
         }
     }
     
-    /// 加载字典中的数据
+    /// 添加字典中的数据，不会清空原数据
     ///
     /// - Parameter dict: 字典
     /// - Returns: 是否成功
-    public func loadDataWithDict(_ dict: Dictionary<String, Any>) -> Bool {
+    public func appendDataWithDict(_ dict: Dictionary<String, Any>) -> LoadDataResult {
         if let dataDict = dict["data"] as? Dictionary<String, Any> {
             if !self.loadMutableData(dataDict) {
-                return false
+                return .saveMutableDataError
             }
         }
         if let immutableDataDict = dict["immutableData"] as? Dictionary<String, Any> {
             if !self.loadImmutableData(immutableDataDict) {
-                return false
+                return .saveImmutableDataError
             }
         }
-        return true
+        return .success
+    }
+    
+    /// 加载JSON文件中的数据，会清空原数据
+    ///
+    /// - Parameter fn: 文件路径
+    /// - Returns: 是否成功
+    public func loadDataWithJSONFile(_ fn: String) -> LoadDataResult {
+        clearAllData()
+        return appendDataWithJSONFile(fn)
+    }
+    
+    /// 加载字典中的数据，会清空原数据
+    ///
+    /// - Parameter dict: 字典
+    /// - Returns: 是否成功
+    public func loadDataWithDict(_ dict: Dictionary<String, Any>) -> LoadDataResult {
+        clearAllData()
+        return appendDataWithDict(dict)
     }
     
     //MARK: - 读数据
