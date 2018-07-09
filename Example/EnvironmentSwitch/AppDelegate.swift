@@ -25,13 +25,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         EnvironmentSwitch.business.setImmutableString("/whatsNew.html", key: .whatsNew)
         
         if let fn = Bundle.main.path(forResource: "testData", ofType: "json") {
-            if !EnvironmentSwitch.business.loadDataWithJSONFile(fn) {
+            if EnvironmentSwitch.business.appendDataWithJSONFile(fn) != .success {
                 print("testData.json加载失败")
             }
         } else {
             print("testData.json无法找到")
         }
-        
         
         return true
     }
