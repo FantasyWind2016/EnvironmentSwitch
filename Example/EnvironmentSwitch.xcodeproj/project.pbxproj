@@ -15,6 +15,7 @@
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
 		C139FD135FDF552743AEFC32 /* Pods_EnvironmentSwitch_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0810A5C007C073503C33F7D9 /* Pods_EnvironmentSwitch_Tests.framework */; };
 		C2A5B818200F154700D63092 /* EnvironmentSwitch+Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A5B817200F154700D63092 /* EnvironmentSwitch+Business.swift */; };
+		C2BEF9FF20F361D100493334 /* testData.json in Resources */ = {isa = PBXBuildFile; fileRef = C2BEF9FE20F34CE300493334 /* testData.json */; };
 		D323DA947F0E6992503AAC65 /* Pods_EnvironmentSwitch_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEF80C9D8402117B671BCA43 /* Pods_EnvironmentSwitch_Example.framework */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		735A5CDD88867EC3E9F26D09 /* Pods-EnvironmentSwitch_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EnvironmentSwitch_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EnvironmentSwitch_Tests/Pods-EnvironmentSwitch_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		AEF80C9D8402117B671BCA43 /* Pods_EnvironmentSwitch_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EnvironmentSwitch_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2A5B817200F154700D63092 /* EnvironmentSwitch+Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentSwitch+Business.swift"; sourceTree = "<group>"; };
+		C2BEF9FE20F34CE300493334 /* testData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testData.json; sourceTree = "<group>"; };
 		D5814023C426F29D847E1970 /* Pods-EnvironmentSwitch_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EnvironmentSwitch_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EnvironmentSwitch_Tests/Pods-EnvironmentSwitch_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		DB3A0182D6979914F9BF4736 /* Pods-EnvironmentSwitch_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EnvironmentSwitch_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EnvironmentSwitch_Example/Pods-EnvironmentSwitch_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		EA9BAFF516FDA4D4F149F7CF /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 				C2A5B817200F154700D63092 /* EnvironmentSwitch+Business.swift */,
+				C2BEF9FE20F34CE300493334 /* testData.json */,
 			);
 			name = "Example for EnvironmentSwitch";
 			path = EnvironmentSwitch;
@@ -253,6 +256,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2BEF9FF20F361D100493334 /* testData.json in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,

@@ -12,6 +12,10 @@ extension EnvironmentDataKey {
     public static let webURL: EnvironmentDataKey = EnvironmentDataKey.init("webURL")
     public static let loginURL: EnvironmentDataKey = EnvironmentDataKey.init("loginURL")
     public static let whatsNew: EnvironmentDataKey = EnvironmentDataKey.init("whatsNew")
+    public static let mcsBaseURL: EnvironmentDataKey = EnvironmentDataKey.init("mcsBaseURL")
+    public static let platformBaseURL: EnvironmentDataKey = EnvironmentDataKey.init("platformBaseURL")
+    public static let mcsURL: EnvironmentDataKey = EnvironmentDataKey.init("mcsURL")
+    public static let platformURL: EnvironmentDataKey = EnvironmentDataKey.init("platformURL")
 }
 
 extension EnvironmentSwitch {

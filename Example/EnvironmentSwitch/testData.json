@@ -1,0 +1,32 @@
+{
+    "data": {
+        "list": [
+                 {
+                 "key": "mcsBaseURL",
+                 "values": {
+                            "test": "http://test.mcs.com",
+                            "product": "http://www.mcs.com"
+                 }
+                 },
+                 {
+                 "key": "platformBaseURL",
+                 "values": {
+                            "test": "http://test.platform.com",
+                            "product": "http://www.platform.com"
+                 }
+                 }
+        ]
+    },
+    "immutableData": {
+        "list": [
+                 {
+                 "key": "mcsURL",
+                 "value": "/magicCubeStatistics"
+                 },
+                 {
+                 "key": "platformURL",
+                 "value": "/share.html"
+                 }
+        ]
+    }
+}
