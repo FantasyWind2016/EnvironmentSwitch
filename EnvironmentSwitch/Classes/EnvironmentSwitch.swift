@@ -128,23 +128,42 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     //MARK: - 写数据
     
-    /// 设置对应环境的对应值
+    /// 设置对应环境的对应字符串
     ///
     /// - Parameters:
-    ///   - string: 值
+    ///   - string: 字符串
     ///   - environment: 指定环境类型
     ///   - key: 指定键值名
     public func setString(_ string: String, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey) {
         saveString(string, for: keyStringForEnvironment(environment, key: key))
     }
     
-    /// 设置不可变值（即不同环境中该值不会变化）
+    /// 设置不可变字符串（即不同环境中该字符串不会变化）
     ///
     /// - Parameters:
-    ///   - immutableString: 不可变值
+    ///   - immutableString: 不可变字符串
     ///   - key: 指定键值名
     public func setImmutableString(_ immutableString: String, key: EnvironmentDataKey) {
         saveImmutableString(immutableString, for: keyStringForImmutableParam(key: key))
+    }
+    
+    /// 设置对应环境的对应值
+    ///
+    /// - Parameters:
+    ///   - value: 值，可选类型，nil时会清除原值
+    ///   - environment: 指定环境类型
+    ///   - key: 指定键值名
+    public func setValue(_ value: Any?, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey) {
+        saveValue(value, for: keyStringForEnvironment(environment, key: key))
+    }
+    
+    /// 设置不可变值（即不同环境中该值不会变化）
+    ///
+    /// - Parameters:
+    ///   - immutableString: 不可变值，nil时会清除原值
+    ///   - key: 指定键值名
+    public func setImmutableValue(_ immutableValue: Any?, key: EnvironmentDataKey) {
+        saveImmutableValue(immutableValue, for: keyStringForImmutableParam(key: key))
     }
     
     /// 清除所有可变与不可变数据
@@ -180,6 +199,10 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
             }
             return self.appendDataWithDict(dict)
         } catch {
+            switch error {
+            default:
+                print(error.localizedDescription)
+            }
             return .JSONParseError
         }
     }
@@ -250,16 +273,34 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         return stringForEnvironment(currentEnvironment, key: key)
     }
     
+    /// 获取当前环境下指定键值名的值
+    ///
+    /// - Parameter key: 指定键值名
+    /// - Returns: 值
+    public func valueForKey(_ key: EnvironmentDataKey) -> Any? {
+        return valueForEnvironment(currentEnvironment, key: key)
+    }
+    
     /// 获取指定键值名的不可变普通字符串值
     ///
     /// - Parameter key: 指定键值名
     /// - Returns: 类型：String，字符串值
     public func immutableStringForKey(_ key: EnvironmentDataKey) -> String {
-        var result = immutableDataList[keyStringForImmutableParam(key: key)]
-        if result == nil {
+        var result = immutableValueForKey(key) as? String
+        if let _ = result {
+            
+        } else {
             result = ""
         }
         return result!
+    }
+    
+    /// 获取指定键值名的不可变值
+    ///
+    /// - Parameter key: 指定键值名
+    /// - Returns: 值
+    public func immutableValueForKey(_ key: EnvironmentDataKey) -> Any? {
+        return immutableDataList[keyStringForImmutableParam(key: key)]
     }
     
     /// 获取指定环境指定键值名的普通字符串值
@@ -269,11 +310,23 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     ///   - key: 指定键值名
     /// - Returns: 普通字符串值
     public func stringForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> String {
-        var result = dataList[keyStringForEnvironment(environment, key: key)]
-        if result == nil {
+        var result = valueForEnvironment(environment, key: key) as? String
+        if let _ = result {
+            
+        } else {
             result = ""
         }
         return result!
+    }
+    
+    /// 获取指定环境指定键值名的值
+    ///
+    /// - Parameters:
+    ///   - environment: 指定环境类型
+    ///   - key: 指定键值名
+    /// - Returns: 值
+    public func valueForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> Any? {
+        return dataList[keyStringForEnvironment(environment, key: key)]
     }
     
     //MARK: - private
@@ -281,8 +334,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     static var switchPool : Dictionary<String, EnvironmentSwitch> = [:]
     lazy var switchDefault = UserDefaults.init(suiteName: "EnvironmentSwitch")
     
-    var dataList : Dictionary<String, String> = [:]
-    var immutableDataList : Dictionary<String, String> = [:]
+    var dataList : Dictionary<String, Any> = [:]
+    var immutableDataList : Dictionary<String, Any> = [:]
     
     func loadData() {
         if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
@@ -300,8 +353,24 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         dataList[identifier] = string
     }
     
+    func saveValue(_ value: Any?, for identifier: String) {
+        guard let value = value else {
+            dataList.removeValue(forKey: identifier)
+            return
+        }
+        dataList[identifier] = value
+    }
+    
     func saveImmutableString(_ immutableString: String, for identifier: String) {
         immutableDataList[identifier] = immutableString
+    }
+    
+    func saveImmutableValue(_ immutableValue: Any?, for identifier: String) {
+        guard let immutableValue = immutableValue else {
+            dataList.removeValue(forKey: identifier)
+            return
+        }
+        dataList[identifier] = immutableValue
     }
     
     func loadMutableData(_ dict: Dictionary<String, Any>) -> Bool {
@@ -320,9 +389,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         guard let keyName = dict["key"] as? String else { return false }
         guard let values = dict["values"] as? Dictionary<String, Any> else { return false }
         for envName in values.keys {
-            if let value = values[envName] as? String {
-                saveString(value, for: keyStringForEnvironmentName(envName, keyName: keyName))
-            }
+            let value = values[envName]
+            saveValue(value, for: keyStringForEnvironmentName(envName, keyName: keyName))
         }
         return true
     }
@@ -341,8 +409,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     func loadImmutableItem(_ dict: Dictionary<String, Any>) -> Bool {
         guard let keyName = dict["key"] as? String else { return false }
-        guard let value = dict["value"] as? String else { return false }
-        saveImmutableString(value, for: keyName)
+        let value = dict["value"]
+        saveImmutableValue(value, for: keyName)
         return true
     }
     
