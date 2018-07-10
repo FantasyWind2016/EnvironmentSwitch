@@ -11,21 +11,55 @@ let kDefaultSwitchIdentifier = "share"
 let kKeyCurrentEnvironment = "currentEnvironment"
 let kKeyPersistentData = "PersistentData"
 let kKeyPersistentImmutableData = "PersistentImmutableData"
+let kKeyMuatableData = "data"
+let kKeyImmuatableData = "immutableData"
+let kKeyDataList = "list"
+let kKeyItemKey = "key"
+let kKeyItemValue = "value"
+let kKeyItemValues = "values"
+
+let defaultSuitName = "EnvironmentSwitch"
 
 
-public enum EnvironmentType: String {
-    case develop = "develop"
-    case test = "test"
-    case beta = "beta"
-    case uat = "uat"
-    case product = "product"
+/// 环境类型
+///
+/// 可通过extension进行扩展，参照beta
+public struct EnvironmentType : RawRepresentable, Equatable, Hashable {
+    public var rawValue: String
+    
+    public var hashValue: Int
+    
+    
+    public init(_ rawValue: String) {
+        self.rawValue = rawValue
+        self.hashValue = rawValue.hashValue
+    }
+    
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+        self.hashValue = rawValue.hashValue
+    }
+    
+    public static let develop = EnvironmentType.init("develop")
+    public static let test = EnvironmentType.init("test")
+    public static let product = EnvironmentType.init("product")
+}
+
+extension EnvironmentType {
+    public static let beta = EnvironmentType.init("beta")
+    public static let uat = EnvironmentType.init("uat")
 }
 
 extension NSNotification {
     /// 环境切换后触发，参数中包含preEnvironment和currentEnvironment
-    static let environmentSwitched = NSNotification.Name("EnvironmentSwitched")
+    public static let environmentSwitched = NSNotification.Name("EnvironmentSwitched")
+    public static let paramKeyPreEnvironment = "preEnvironment"
+    public static let paramKeyCurrentEnvironment = "currentEnvironment"
 }
 
+/// 数据的键值
+///
+/// 可通过extension进行扩展，参照baseURL
 public struct EnvironmentDataKey : RawRepresentable, Equatable, Hashable {
     public var rawValue: String
     
@@ -47,6 +81,7 @@ extension EnvironmentDataKey {
     public static let baseURL: EnvironmentDataKey = EnvironmentDataKey.init("baseURL")
 }
 
+/// 从文件或者字典中加载数据时的错误类型
 public enum LoadDataResult {
     case success
     case fileNotExist
@@ -57,23 +92,34 @@ public enum LoadDataResult {
     case saveImmutableDataError
 }
 
+/// 字符串链式编程协议
 public protocol EnvironmentSwitchChainable {
     func boxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString
     func immutableBoxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString
 }
 
+/// 封包后的字符串类，支持链式编程
 public class BoxedString: EnvironmentSwitchChainable {
     public var rawValue = ""
     var environmentSwitch: EnvironmentSwitch = EnvironmentSwitch()
     init(_ value: String) {
         rawValue = value
     }
+    
+    /// 在当前字符串的基础上拼接新字符串
+    ///
+    /// - Parameter key: 新字符串的key名
+    /// - Returns: 返回拼接后的封包字符串
     public func boxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString {
         let string = BoxedString(self.rawValue + environmentSwitch.stringForKey(key))
         string.environmentSwitch = self.environmentSwitch
         return string
     }
     
+    /// 在当前字符串的基础上拼接新的不可变字符串
+    ///
+    /// - Parameter key: 新不可变字符串的key名
+    /// - Returns: 返回拼接后的封包字符串
     public func immutableBoxedStringForKey(_ key: EnvironmentDataKey) -> BoxedString {
         let string = BoxedString(self.rawValue + environmentSwitch.immutableStringForKey(key))
         string.environmentSwitch = self.environmentSwitch
@@ -81,13 +127,16 @@ public class BoxedString: EnvironmentSwitchChainable {
     }
 }
 
+/// 环境切换类
 public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     //MARK: - public
     
+    // 默认的单例对象
     public static let share = switchWithIdentifier(kDefaultSwitchIdentifier)
-    
+    // 当前实例的标识符
     public var identifier = kDefaultSwitchIdentifier
+    // 当前的环境类型
     public var currentEnvironment = EnvironmentType.product
     
     /// 获取当前业务私有的实例，保证数据隔离
@@ -113,17 +162,15 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         currentEnvironment = environment
         switchDefault?.set(currentEnvironment.rawValue, forKey: saveKey(forKey: kKeyCurrentEnvironment))
         switchDefault?.synchronize()
-        NotificationCenter.default.post(name: NSNotification.environmentSwitched, object: self, userInfo: ["preEnvironment": oldValue.rawValue,"currentEnvironment": currentEnvironment.rawValue])
+        NotificationCenter.default.post(name: NSNotification.environmentSwitched, object: self, userInfo: [NSNotification.paramKeyPreEnvironment: oldValue.rawValue, NSNotification.paramKeyCurrentEnvironment: currentEnvironment.rawValue])
     }
     
     /// 是否手动切换过环境
     ///
     /// - Returns: 是否
     public func hadSwitched() -> Bool {
-        if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
-            if let _ = EnvironmentType.init(rawValue: raw) {
-                return true
-            }
+        if let _ = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
+            return true
         }
         return false
     }
@@ -223,12 +270,12 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     /// - Parameter dict: 字典
     /// - Returns: 是否成功
     public func appendDataWithDict(_ dict: Dictionary<String, Any>) -> LoadDataResult {
-        if let dataDict = dict["data"] as? Dictionary<String, Any> {
+        if let dataDict = dict[kKeyMuatableData] as? Dictionary<String, Any> {
             if !self.loadMutableData(dataDict) {
                 return .saveMutableDataError
             }
         }
-        if let immutableDataDict = dict["immutableData"] as? Dictionary<String, Any> {
+        if let immutableDataDict = dict[kKeyImmuatableData] as? Dictionary<String, Any> {
             if !self.loadImmutableData(immutableDataDict) {
                 return .saveImmutableDataError
             }
@@ -349,7 +396,7 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     //MARK: - private
     
     static var switchPool : Dictionary<String, EnvironmentSwitch> = [:]
-    lazy var switchDefault = UserDefaults.init(suiteName: "EnvironmentSwitch")
+    lazy var switchDefault = UserDefaults.init(suiteName: defaultSuitName)
     
     var dataList : Dictionary<String, Any> = [:]
     var immutableDataList : Dictionary<String, Any> = [:]
@@ -358,9 +405,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     func loadData() {
         if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
-            if let current = EnvironmentType.init(rawValue: raw) {
-                switchTo(current)
-            }
+            let current = EnvironmentType.init(raw)
+            switchTo(current)
         }
     }
     
@@ -418,7 +464,7 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     }
     
     func loadMutableData(_ dict: Dictionary<String, Any>) -> Bool {
-        if let list = dict["list"] as? Array<Dictionary<String, Any>> {
+        if let list = dict[kKeyDataList] as? Array<Dictionary<String, Any>> {
             for item in list {
                 if !self.loadMutableItem(item) {
                     return false
@@ -430,8 +476,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     }
     
     func loadMutableItem(_ dict: Dictionary<String, Any>) -> Bool {
-        guard let keyName = dict["key"] as? String else { return false }
-        guard let values = dict["values"] as? Dictionary<String, Any> else { return false }
+        guard let keyName = dict[kKeyItemKey] as? String else { return false }
+        guard let values = dict[kKeyItemValues] as? Dictionary<String, Any> else { return false }
         for envName in values.keys {
             let value = values[envName]
             saveValue(value, for: keyStringForEnvironmentName(envName, keyName: keyName))
@@ -440,7 +486,7 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     }
     
     func loadImmutableData(_ dict: Dictionary<String, Any>) -> Bool {
-        if let list = dict["list"] as? Array<Dictionary<String, Any>> {
+        if let list = dict[kKeyDataList] as? Array<Dictionary<String, Any>> {
             for item in list {
                 if !self.loadImmutableItem(item) {
                     return false
@@ -452,8 +498,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     }
     
     func loadImmutableItem(_ dict: Dictionary<String, Any>) -> Bool {
-        guard let keyName = dict["key"] as? String else { return false }
-        let value = dict["value"]
+        guard let keyName = dict[kKeyItemKey] as? String else { return false }
+        let value = dict[kKeyItemValue]
         saveImmutableValue(value, for: keyName)
         return true
     }
