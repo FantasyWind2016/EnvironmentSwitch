@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         EnvironmentSwitch.business.setString("https://test.baidu.com", forEnvironment: .test, key: .webURL)
         EnvironmentSwitch.business.setImmutableString("/whatsNew.html", key: .whatsNew)
         
+        EnvironmentSwitch.business.setValue(true, forEnvironment: .test, key: .showTestInfo)
+        EnvironmentSwitch.business.setValue(false, forEnvironment: .product, key: .showTestInfo)
+        
         if let fn = Bundle.main.path(forResource: "testData", ofType: "json") {
             if EnvironmentSwitch.business.appendDataWithJSONFile(fn) != .success {
                 print("testData.json加载失败")

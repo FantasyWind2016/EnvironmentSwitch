@@ -16,6 +16,9 @@ extension EnvironmentDataKey {
     public static let platformBaseURL: EnvironmentDataKey = EnvironmentDataKey.init("platformBaseURL")
     public static let mcsURL: EnvironmentDataKey = EnvironmentDataKey.init("mcsURL")
     public static let platformURL: EnvironmentDataKey = EnvironmentDataKey.init("platformURL")
+    public static let showTestInfo: EnvironmentDataKey = EnvironmentDataKey.init("showTestInfo")
+    public static let usePgyUpdate: EnvironmentDataKey = EnvironmentDataKey.init("usePgyUpdate")
+    public static let repeatTime: EnvironmentDataKey = EnvironmentDataKey.init("repeatTime")
 }
 
 extension EnvironmentSwitch {

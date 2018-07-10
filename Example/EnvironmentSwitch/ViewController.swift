@@ -39,6 +39,9 @@ class ViewController: UIViewController {
         environmentLabel.text = EnvironmentSwitch.business.currentEnvironment == .product ? "生产" : "测试"
         baseURLLabel.text = EnvironmentSwitch.business.boxedStringForKey(.mcsBaseURL).immutableBoxedStringForKey(.mcsURL).rawValue
         webURLLabel.text = EnvironmentSwitch.business.boxedStringForKey(.platformBaseURL).immutableBoxedStringForKey(.platformURL).rawValue
+        print("showTestInfo:\((EnvironmentSwitch.business.valueForKey(.showTestInfo) as? Bool) ?? false)")
+        print("usePgyUpdate:\((EnvironmentSwitch.business.valueForKey(.usePgyUpdate) as? Bool) ?? false)")
+        print("repeatTime:\((EnvironmentSwitch.business.valueForKey(.repeatTime) as? Float) ?? 0.0)")
     }
 }
 
