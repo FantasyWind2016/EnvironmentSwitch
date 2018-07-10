@@ -16,6 +16,11 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var webURLLabel: UILabel!
     
+    @IBOutlet weak var keyTextField: UITextField!
+    
+    @IBOutlet weak var valueTextField: UITextField!
+    
+    @IBOutlet weak var currentValueLabel: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -42,6 +47,22 @@ class ViewController: UIViewController {
         print("showTestInfo:\((EnvironmentSwitch.business.valueForKey(.showTestInfo) as? Bool) ?? false)")
         print("usePgyUpdate:\((EnvironmentSwitch.business.valueForKey(.usePgyUpdate) as? Bool) ?? false)")
         print("repeatTime:\((EnvironmentSwitch.business.valueForKey(.repeatTime) as? Float) ?? 0.0)")
+    }
+    @IBAction func btnWriteTouched(_ sender: Any) {
+        guard let key = self.keyTextField.text else { return }
+        guard let value = self.valueTextField.text else {
+            return
+        }
+        EnvironmentSwitch.business.setString(value, forEnvironment: EnvironmentSwitch.business.currentEnvironment, key: EnvironmentDataKey.init(key), needPersist: true)
+//        EnvironmentSwitch.business.setImmutableString(value, key: EnvironmentDataKey.init(key), needPersist: true)
+    }
+    @IBAction func btnReadTouched(_ sender: Any) {
+        guard let key = self.keyTextField.text else { return }
+        self.currentValueLabel.text = EnvironmentSwitch.business.stringForKey(EnvironmentDataKey.init(key))
+//        self.currentValueLabel.text = EnvironmentSwitch.business.immutableStringForKey(EnvironmentDataKey.init(key))
+    }
+    @IBAction func btnResetTouched(_ sender: Any) {
+        EnvironmentSwitch.business.resetPersistentData()
     }
 }
 
