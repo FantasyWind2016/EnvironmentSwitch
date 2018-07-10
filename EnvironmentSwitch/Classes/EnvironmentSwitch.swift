@@ -9,6 +9,8 @@ import Foundation
 
 let kDefaultSwitchIdentifier = "share"
 let kKeyCurrentEnvironment = "currentEnvironment"
+let kKeyPersistentData = "PersistentData"
+let kKeyPersistentImmutableData = "PersistentImmutableData"
 
 
 public enum EnvironmentType: String {
@@ -134,8 +136,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     ///   - string: 字符串
     ///   - environment: 指定环境类型
     ///   - key: 指定键值名
-    public func setString(_ string: String, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey) {
-        saveString(string, for: keyStringForEnvironment(environment, key: key))
+    public func setString(_ string: String, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey, needPersist: Bool = false) {
+        saveString(string, for: keyStringForEnvironment(environment, key: key), needPersist: needPersist)
     }
     
     /// 设置不可变字符串（即不同环境中该字符串不会变化）
@@ -143,8 +145,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     /// - Parameters:
     ///   - immutableString: 不可变字符串
     ///   - key: 指定键值名
-    public func setImmutableString(_ immutableString: String, key: EnvironmentDataKey) {
-        saveImmutableString(immutableString, for: keyStringForImmutableParam(key: key))
+    public func setImmutableString(_ immutableString: String, key: EnvironmentDataKey, needPersist: Bool = false) {
+        saveImmutableString(immutableString, for: keyStringForImmutableParam(key: key), needPersist: needPersist)
     }
     
     /// 设置对应环境的对应值
@@ -153,8 +155,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     ///   - value: 值，可选类型，nil时会清除原值
     ///   - environment: 指定环境类型
     ///   - key: 指定键值名
-    public func setValue(_ value: Any?, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey) {
-        saveValue(value, for: keyStringForEnvironment(environment, key: key))
+    public func setValue(_ value: Any?, forEnvironment environment: EnvironmentType, key: EnvironmentDataKey, needPersist: Bool = false) {
+        saveValue(value, for: keyStringForEnvironment(environment, key: key), needPersist: needPersist)
     }
     
     /// 设置不可变值（即不同环境中该值不会变化）
@@ -162,8 +164,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     /// - Parameters:
     ///   - immutableString: 不可变值，nil时会清除原值
     ///   - key: 指定键值名
-    public func setImmutableValue(_ immutableValue: Any?, key: EnvironmentDataKey) {
-        saveImmutableValue(immutableValue, for: keyStringForImmutableParam(key: key))
+    public func setImmutableValue(_ immutableValue: Any?, key: EnvironmentDataKey, needPersist: Bool = false) {
+        saveImmutableValue(immutableValue, for: keyStringForImmutableParam(key: key), needPersist: needPersist)
     }
     
     /// 清除所有可变与不可变数据
@@ -180,6 +182,15 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     /// 清除所有不可变数据
     public func clearImmutableData() {
         immutableDataList.removeAll()
+    }
+    
+    /// 清除所有的缓存数据
+    public func resetPersistentData() {
+        persistentDataList.removeAll()
+        persistentImmutableDataList.removeAll()
+        switchDefault?.removeObject(forKey: saveKey(forKey: kKeyPersistentData))
+        switchDefault?.removeObject(forKey: saveKey(forKey: kKeyPersistentImmutableData))
+        switchDefault?.synchronize()
     }
     
     /// 添加JSON文件中的数据，不会清空原数据
@@ -300,6 +311,9 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     /// - Parameter key: 指定键值名
     /// - Returns: 值
     public func immutableValueForKey(_ key: EnvironmentDataKey) -> Any? {
+        if let result = persistentImmutableDataList[keyStringForImmutableParam(key: key)] {
+            return result
+        }
         return immutableDataList[keyStringForImmutableParam(key: key)]
     }
     
@@ -326,6 +340,9 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     ///   - key: 指定键值名
     /// - Returns: 值
     public func valueForEnvironment(_ environment: EnvironmentType, key: EnvironmentDataKey) -> Any? {
+        if let result = persistentDataList[keyStringForEnvironment(environment, key: key)] {
+            return result
+        }
         return dataList[keyStringForEnvironment(environment, key: key)]
     }
     
@@ -336,6 +353,8 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     var dataList : Dictionary<String, Any> = [:]
     var immutableDataList : Dictionary<String, Any> = [:]
+    var persistentDataList : Dictionary<String, Any> = [:]
+    var persistentImmutableDataList : Dictionary<String, Any> = [:]
     
     func loadData() {
         if let raw = switchDefault?.string(forKey: saveKey(forKey: kKeyCurrentEnvironment)) {
@@ -349,28 +368,53 @@ public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
         return "kUserDefault_" + identifier + "_" + key
     }
     
-    func saveString(_ string: String, for identifier: String) {
-        dataList[identifier] = string
+    func saveString(_ string: String, for identifier: String, needPersist: Bool = false) {
+        saveValue(string, for: identifier, needPersist: needPersist)
     }
     
-    func saveValue(_ value: Any?, for identifier: String) {
+    func saveValue(_ value: Any?, for identifier: String, needPersist: Bool = false) {
+        // 需要持久化的数据分开存储以保留原始数据
         guard let value = value else {
-            dataList.removeValue(forKey: identifier)
+            if needPersist {
+                persistentDataList.removeValue(forKey: identifier)
+                switchDefault?.setValue(persistentDataList, forKey: saveKey(forKey: kKeyPersistentData))
+                switchDefault?.synchronize()
+            } else {
+                dataList.removeValue(forKey: identifier)
+            }
             return
         }
-        dataList[identifier] = value
+        if needPersist {
+            persistentDataList[identifier] = value
+            switchDefault?.setValue(persistentDataList, forKey: saveKey(forKey: kKeyPersistentData))
+            switchDefault?.synchronize()
+        } else {
+            dataList[identifier] = value
+        }
     }
     
-    func saveImmutableString(_ immutableString: String, for identifier: String) {
-        immutableDataList[identifier] = immutableString
+    func saveImmutableString(_ immutableString: String, for identifier: String, needPersist: Bool = false) {
+        saveImmutableValue(immutableString, for: identifier, needPersist: needPersist)
     }
     
-    func saveImmutableValue(_ immutableValue: Any?, for identifier: String) {
+    func saveImmutableValue(_ immutableValue: Any?, for identifier: String, needPersist: Bool = false) {
         guard let immutableValue = immutableValue else {
-            dataList.removeValue(forKey: identifier)
+            if needPersist {
+                persistentImmutableDataList.removeValue(forKey: identifier)
+                switchDefault?.setValue(persistentDataList, forKey: saveKey(forKey: kKeyPersistentImmutableData))
+                switchDefault?.synchronize()
+            } else {
+                immutableDataList.removeValue(forKey: identifier)
+            }
             return
         }
-        dataList[identifier] = immutableValue
+        if needPersist {
+            persistentImmutableDataList[identifier] = immutableValue
+            switchDefault?.setValue(persistentImmutableDataList, forKey: saveKey(forKey: kKeyPersistentImmutableData))
+            switchDefault?.synchronize()
+        } else {
+            immutableDataList[identifier] = immutableValue
+        }
     }
     
     func loadMutableData(_ dict: Dictionary<String, Any>) -> Bool {
