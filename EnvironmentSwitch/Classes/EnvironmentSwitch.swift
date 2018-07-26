@@ -127,7 +127,7 @@ public class BoxedString: EnvironmentSwitchChainable {
     }
 }
 
-/// 环境切换类
+/// 环境切换类，url值支持链式操作
 public class EnvironmentSwitch: NSObject, EnvironmentSwitchChainable {
     
     //MARK: - public
