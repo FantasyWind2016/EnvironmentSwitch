@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        // 初始化数据
         EnvironmentSwitch.business.setString("https://api.baidu.com", forEnvironment: .product, key: .baseURL)
         EnvironmentSwitch.business.setString("https://test.api.baidu.com", forEnvironment: .test, key: .baseURL)
         EnvironmentSwitch.business.setImmutableString("/login", key: .loginURL)
