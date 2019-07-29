@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://github.com/FantasyWind2016/EnvironmentSwitch'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { '季风' => 'jihq@servyou.com.cn' }
+  s.author           = { '季风' => '1026499974@qq.com' }
   s.source           = { :git => 'https://github.com/FantasyWind2016/EnvironmentSwitch.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
