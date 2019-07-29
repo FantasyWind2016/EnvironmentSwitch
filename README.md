@@ -22,7 +22,7 @@ pod 'EnvironmentSwitch'
 
 ## Author
 
-季风, jihq@servyou.com.cn
+季风, 1026499974@qq.com
 
 ## License
 
